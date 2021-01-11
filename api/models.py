@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class UserRoles(models.TextChoices):
@@ -98,7 +100,19 @@ class Title(models.Model):
         )
 
 
+<<<<<<< HEAD
 
+=======
+class Rating(models.Model):
+    value = models.PositiveSmallIntegerField(
+        "Рейтинг",
+        default=5,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+    )
+    
+    def __str__(self):
+        return self.value
+>>>>>>> endpoints, serializers and models
 
 
 class Review(models.Model):

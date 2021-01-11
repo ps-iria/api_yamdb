@@ -1,5 +1,7 @@
 from rest_framework import serializers
+from .models import Review, Comment
 
+<<<<<<< HEAD
 from .models import User, Category, Title, Genre
 
 
@@ -64,3 +66,23 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'username': {'required': True},
                         'email': {'required': True}
                         }
+=======
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    author = serializers.ReadOnlyField(source='author.username')
+
+    class Meta:
+        fields = '__all__'
+        model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    author = serializers.ReadOnlyField(source='author.username')
+
+    class Meta:
+        fields = '__all__'
+        model = Comment
+    
+>>>>>>> endpoints, serializers and models

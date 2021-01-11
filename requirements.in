@@ -1,7 +1,11 @@
 pytest-django
 requests
 django
-django-filter
+django-filter==2.4.0
 djangorestframework
+<<<<<<< HEAD
 djangorestframework-simplejwt
 django-import-export
+=======
+djangorestframework-simplejwt==4.6.0
+>>>>>>> endpoints, serializers and models

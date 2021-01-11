@@ -160,6 +160,7 @@ class CrudToCategoryGenreViewSet(CreateModelMixin,
     pass
 
 
+<<<<<<< HEAD
 class CategoryViewSet(CrudToCategoryGenreViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -176,3 +177,11 @@ class GenreViewSet(CrudToCategoryGenreViewSet):
     filter_backends = [SearchFilter]
     search_fields = ['name',]
     lookup_field = 'slug'
+=======
+class ReviewViewSet(viewsets.ModelViewSet):
+    pass
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    pass
+>>>>>>> endpoints, serializers and models

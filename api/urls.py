@@ -1,13 +1,24 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from .views import ReviewViewSet, CommentViewSet, UserViewSet
 
-from . import views
 
 router = DefaultRouter()
 router.register(
     'users',
-    views.UserViewSet,
+    UserViewSet,
     basename='users'
+)
+router.register('users', UserViewSet, basename='users')
+router.register(
+    r'titles/(?P<title_id>\d+)/reviews',
+    ReviewViewSet,
+    basename='review',
+)
+router.register(
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+    CommentViewSet,
+    basename='comment'
 )
 
 urlpatterns = [

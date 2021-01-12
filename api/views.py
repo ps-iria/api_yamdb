@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
+from django.contrib.auth.tokens import PasswordResetTokenGenerator, \
+    default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import render
 
@@ -13,7 +14,11 @@ from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 from .models import User
 from .permissions import IsAdmin
-from .serializers import UserSerializer, UserCreateSerializer, ConfirmationCodeSerializer
+from .serializers import UserSerializer, UserCreateSerializer, \
+    ConfirmationCodeSerializer
 
+
+class UserViewSet(viewsets.ModelViewSet):
+    pass
 
 

@@ -30,10 +30,6 @@ class User(AbstractUser):
         blank=True,
         verbose_name='Логин',
     )
-    # confirmation_code = models.CharField(
-    #     max_length=255,
-    #     unique=True
-    # )
     first_name = models.CharField(
         max_length=15,
         blank=True,

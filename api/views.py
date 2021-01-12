@@ -1,16 +1,77 @@
-from django.contrib.auth.tokens import default_token_generator
+from datetime import datetime
+import uuid
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator, \
+    PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 from .models import User
 from .permissions import IsAdmin
-from .serializers import UserSerializer, UserCreateSerializer, \
-    ConfirmationCodeSerializer
+from .serializers import UserSerializer
+
+EMAIL_AUTH = '11@11.11'
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def get_token(request):
+    email = request.data.get('email')
+    confirmation_code = request.data.get('confirmation_code')
+    user = get_object_or_404(
+        User, email=email, confirmation_code=confirmation_code)
+    refresh_tokens = RefreshToken.for_user(user)
+    tokens = {'refresh': str(refresh_tokens),
+              'access': str(refresh_tokens.access_token), }
+    return Response({"message": tokens.items()})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def registration(request):
+    email = request.data.get('email')
+    username = request.data.get('username')
+    if not email:
+        return Response({'message': {
+            'Ошибка': 'Не указана почта для регистрации'}},
+            status=status.HTTP_403_FORBIDDEN)
+    code = PasswordResetTokenGenerator()
+    user = get_user_model()
+    user.email = email
+    user.last_login = datetime.now()
+    user.password = ''
+    confirmation_code = code.make_token(user)
+    try:
+        query_get, flag = get_user_model().objects.get_or_create(
+            email=email,
+            defaults={'username': email,
+                      'confirmation_code': confirmation_code,
+                      'last_login': datetime.now()})
+        if not flag:
+            return Response({'message': {
+                'Ошибка': 'Пользователь с таким email уже существует.'}},
+                status=status.HTTP_403_FORBIDDEN)
+    except:
+        return Response({'message': {
+            'Ошибка': 'Ошибка запроса'}}, status=status.HTTP_403_FORBIDDEN)
+    send_mail(
+        'Подтверждение адреса электронной почты YaTube',
+        'Вы получили это письмо, потому что регистрируетесь на ресурсе '
+        'YaTube Код подтверждения confirmation_code = '
+        + str(confirmation_code),
+        settings.DEFAULT_FROM_EMAIL,
+        [email, ],
+        fail_silently=False, )
+    return Response({'message': {
+        'ОК': f'Пользователь c email {email} создан успешно. '
+              'Код подтверждения отправлен на электронную почту'}})
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -22,7 +83,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         methods=["get", "patch"],
         detail=False,
-        permission_classes=[IsAuthenticated, ],
+        permission_classes=[IsAuthenticated],
         url_path='me'
     )
     def me(self, request):
@@ -34,43 +95,3 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def registration(request):
-    serializer = UserCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    email = serializer.data['email']
-    username = serializer.data['username']
-    user = User.objects.get_or_create(
-        email=email,
-        username=username,
-    )
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        'Подтверждение адреса электронной почты YamDB',
-        'Вы получили это письмо, потому что регистрируетесь на ресурсе '
-        'YaTube Код подтверждения confirmation_code = '
-        + str(confirmation_code),
-        settings.DEFAULT_FROM_EMAIL,
-        [email, ],
-        fail_silently=False, )
-    serializer.save()
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def get_token(request):
-    serializer = ConfirmationCodeSerializer(data=request.data)
-    if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    email = serializer.data.get('email')
-    confirmation_code = serializer.data.get('confirmation_code')
-    user = get_object_or_404(User, email=email)
-    if default_token_generator.check_token(user, confirmation_code):
-        token = AccessToken.for_user(user)
-        return Response({'token': str(token)}, status=status.HTTP_200_OK)
-    return Response({'confirmation_code': 'Неверный код подтверждения'},
-                    status=status.HTTP_400_BAD_REQUEST)

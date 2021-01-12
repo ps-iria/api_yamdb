@@ -20,7 +20,8 @@ class User(AbstractUser):
     email = models.EmailField(
         max_length=128,
         blank=False,
-        unique=True
+        unique=True,
+        verbose_name='Адрес электронной почты',
     )
     username = models.CharField(
         max_length=30,

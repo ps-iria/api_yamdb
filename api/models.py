@@ -100,19 +100,6 @@ class Title(models.Model):
         )
 
 
-<<<<<<< HEAD
-
-=======
-class Rating(models.Model):
-    value = models.PositiveSmallIntegerField(
-        "Рейтинг",
-        default=5,
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
-    )
-    
-    def __str__(self):
-        return self.value
->>>>>>> endpoints, serializers and models
 
 
 class Review(models.Model):

@@ -1,23 +1,19 @@
 from datetime import datetime
-import uuid
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import default_token_generator, \
-    PasswordResetTokenGenerator
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .permissions import IsAdmin
 from .serializers import UserSerializer
-
-EMAIL_AUTH = '11@11.11'
 
 
 @api_view(['POST'])
@@ -37,7 +33,7 @@ def get_token(request):
 @permission_classes([AllowAny])
 def registration(request):
     email = request.data.get('email')
-    username = request.data.get('username')
+    # username = request.data.get('username')
     if not email:
         return Response({'message': {
             'Ошибка': 'Не указана почта для регистрации'}},
@@ -92,7 +88,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(request.user, many=False)
         if request.method == "PATCH":
             serializer = UserSerializer(
-                request.user, data=request.data, partial=True  # False
+                request.user, data=request.data, partial=True
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()

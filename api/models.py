@@ -76,8 +76,15 @@ class Title(models.Model):
         Category, on_delete=models.SET_NULL,
         blank=True, null=True, related_name='titles')
 
+    def get_genre(self):
+        return(', '.join([genre.name for genre in self.genre.all()]))
+
     def __str__(self):
-        return self.name
+        return(f' name: {self.name},'
+               f' year: {self.year},'
+               f' genre: {self.get_genre()},'
+               f' category: {self.category}'
+        )
 
 
 class Rating(models.Model):

@@ -25,7 +25,6 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=30,
         unique=True,
-        # default=email,
         blank=False,
         verbose_name='Логин',
     )
@@ -62,8 +61,6 @@ class User(AbstractUser):
     def is_moderator(self):
         return self.role == UserRoles.MODERATOR
 
-    # USERNAME_FIELD = 'email'
-    # REQUIRED_FIELDS = ('username',)
 
 class Category(models.Model):
     name = models.CharField(max_length=250, unique=True)

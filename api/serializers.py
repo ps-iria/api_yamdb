@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Review, Comment
+from .models import Review, Comment, User
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -7,8 +7,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
-        fields = '__all__'
         model = Review
+        fields = ["id", "text", "author", "score", "pub_date"]
+        read_only_fields = ["title"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -16,6 +17,7 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
-        fields = '__all__'
         model = Comment
+        fields = ["id", "text", "author", "pub_date"]
+        read_only_fields = ["review"]
     

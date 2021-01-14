@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Review, Comment
+from .models import Review, Comment, User
 
 from .models import User, Category, Title, Genre
 
@@ -52,6 +52,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
+<<<<<<< HEAD
         fields = (
             'username',
             'role',
@@ -65,3 +66,9 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'username': {'required': True},
                         'email': {'required': True}
                         }
+=======
+        model = Comment
+        fields = ["id", "text", "author", "pub_date"]
+        read_only_fields = ["review"]
+    
+>>>>>>> correcting and getting one review on title

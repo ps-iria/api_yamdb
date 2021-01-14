@@ -1,8 +1,7 @@
+from enum import unique
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class UserRoles(models.TextChoices):
@@ -118,6 +117,13 @@ class Review(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(10)],
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+<<<<<<< HEAD
+=======
+    
+    class Meta:
+        unique_together = ["title", "author"]
+        ordering = ["pub_date"]
+>>>>>>> correcting and getting one review on title
 
     def __str__(self):
         return self.text
@@ -129,14 +135,16 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments',
     )
-    text = models.CharField(max_length=1000)
+    text = models.TextField()
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
     )
-    pub_date = models.DateTimeField(
-        'Дата создания',
-        auto_now_add=True,
-        db_index=True,
-    )
+    pub_date = models.DateTimeField('Дата создания', auto_now_add=True)
+
+    class Meta:
+        ordering = ["pub_date"]
+
+    def __str__(self):
+        return self.text

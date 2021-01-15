@@ -4,3 +4,4 @@ django
 django-filter
 djangorestframework
 djangorestframework-simplejwt
+django-import-export

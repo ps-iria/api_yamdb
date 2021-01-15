@@ -11,9 +11,17 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from rest_framework.pagination import PageNumberPagination
+
 from .models import User
 from .permissions import IsAdmin
 from .serializers import UserSerializer
+from .serializers import TitleSerializer, CategorySerializer, GenreSerializer
+from .models import Title, Category, Genre
+from .filters import TitleFilter
 
 
 @api_view(['POST'])
@@ -126,7 +134,7 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.data,
             status=status.HTTP_200_OK
         )
-
+      
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -136,3 +144,31 @@ class UserViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_204_NO_CONTENT
         )
+      
+      
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    #permission_classes = []
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filterset_class = TitleFilter
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    #permission_classes = []
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name']
+    lookup_field = 'slug'
+    http_method_names = ['get', 'create', 'delete']
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all().order_by('-id')
+    serializer_class = GenreSerializer
+    #permission_classes = []
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name']
+    lookup_field = 'slug'
+    http_method_names = ['get', 'create', 'delete']

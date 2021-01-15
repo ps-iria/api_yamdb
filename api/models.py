@@ -25,18 +25,19 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=30,
         unique=True,
-        default=email,
-        blank=True,
+        blank=False,
         verbose_name='Логин',
     )
     first_name = models.CharField(
         max_length=15,
         blank=True,
+        null=True,
         verbose_name='Имя',
     )
     last_name = models.CharField(
         max_length=15,
         blank=True,
+        null=True,
         verbose_name='Фамилия',
     )
     bio = models.TextField(
@@ -45,10 +46,20 @@ class User(AbstractUser):
         verbose_name='О себе',
     )
     confirmation_code = models.CharField(
-        max_length=36,
-        blank=True,
-        null=True
+        max_length=255,
+        unique=True,
+        editable=False,
+        null=True,
+        blank=True
     )
+
+    @property
+    def is_admin(self):
+        return self.role == UserRoles.ADMIN or self.is_superuser
+
+    @property
+    def is_moderator(self):
+        return self.role == UserRoles.MODERATOR
 
 
 class Category(models.Model):

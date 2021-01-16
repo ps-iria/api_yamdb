@@ -98,15 +98,7 @@ class Title(models.Model):
         )
 
 
-class Rating(models.Model):
-    value = models.PositiveSmallIntegerField(
-        "Рейтинг",
-        default=5,
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
-    )
 
-    def __str__(self):
-        return self.value
 
 
 class Review(models.Model):
@@ -121,10 +113,8 @@ class Review(models.Model):
         related_name='reviews',
     )
     text = models.TextField()
-    score = models.ForeignKey(
-        Rating,
-        on_delete=models.PROTECT,
-        related_name='reviews',
+    score = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 

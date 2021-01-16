@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.db.models import Avg
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -142,7 +143,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     # permission_classes = []
     filter_backends = (DjangoFilterBackend, SearchFilter)

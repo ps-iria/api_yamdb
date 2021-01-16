@@ -144,6 +144,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(days=40),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=40),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=60),
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"

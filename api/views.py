@@ -10,6 +10,8 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
+                                   DestroyModelMixin)
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -17,7 +19,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .filters import TitleFilter
 from .models import Title, Category, Genre, User
 from .permissions import IsAdmin, IsAdminOrReadOnly
-from .serializers import TitleSerializer, CategorySerializer, GenreSerializer, UserSerializer
+from .serializers import (TitleSerializer, CategorySerializer,
+                          GenreSerializer, UserSerializer)
 
 
 @api_view(['POST'])
@@ -150,21 +153,26 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CrudToCategoryGenreViewSet(CreateModelMixin,
+                                 ListModelMixin,
+                                 DestroyModelMixin,
+                                 viewsets.GenericViewSet):
+    pass
+
+
+class CategoryViewSet(CrudToCategoryGenreViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name']
+    filter_backends = [SearchFilter]
+    search_fields = ['name',]
     lookup_field = 'slug'
-    http_method_names = ['get', 'post', 'delete']
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(CrudToCategoryGenreViewSet):
     queryset = Genre.objects.all().order_by('-id')
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name']
+    filter_backends = [SearchFilter]
+    search_fields = ['name',]
     lookup_field = 'slug'
-    http_method_names = ['get', 'post', 'delete']

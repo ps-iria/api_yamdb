@@ -157,7 +157,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['name']
     lookup_field = 'slug'
-    http_method_names = ['get', 'create', 'delete']
+    http_method_names = ['get', 'post', 'delete']
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -167,4 +167,4 @@ class GenreViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['name']
     lookup_field = 'slug'
-    http_method_names = ['get', 'create', 'delete']
+    http_method_names = ['get', 'post', 'delete']

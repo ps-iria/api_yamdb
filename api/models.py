@@ -21,6 +21,7 @@ class User(AbstractUser):
         blank=False,
         unique=True,
         verbose_name='Адрес электронной почты',
+        db_index=True,
     )
     username = models.CharField(
         max_length=30,
@@ -98,9 +99,6 @@ class Title(models.Model):
         )
 
 
-
-
-
 class Review(models.Model):
     author = models.ForeignKey(
         User,
@@ -114,9 +112,13 @@ class Review(models.Model):
     )
     text = models.TextField()
     score = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        'review score',
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+    
+    class Meta:
+        unique_together = ["title", "author"]
 
     def __str__(self):
         return self.text
@@ -128,14 +130,14 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments',
     )
-    text = models.CharField(max_length=1000)
+    text = models.TextField()
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
     )
-    pub_date = models.DateTimeField(
-        'Дата создания',
-        auto_now_add=True,
-        db_index=True,
-    )
+    pub_date = models.DateTimeField('Дата создания', auto_now_add=True)
+
+    def __str__(self):
+        return self.text
+        

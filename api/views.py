@@ -1,26 +1,44 @@
 from datetime import datetime
 
+from django.db import IntegrityError
 from django.db.models import Avg
 from django.conf import settings
+from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
-from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
-                                   DestroyModelMixin)
+from rest_framework.serializers import ValidationError
+from rest_framework.mixins import (
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+)
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import TitleFilter
-from .models import Title, Category, Genre, User
-from .permissions import IsAdmin, IsAdminOrReadOnly
-from .serializers import (TitleSerializer, CategorySerializer,
-                          GenreSerializer, UserSerializer)
+from .models import Review, Title, Category, Genre, User
+from .serializers import (
+    ReviewSerializer,
+    CategorySerializer,
+    CommentSerializer,
+    TitleSerializer,
+    GenreSerializer,
+    UserSerializer
+)
+from .permissions import (
+    IsAdmin,
+    IsAdminOrModeratorOrOwnerOrReadOnly,
+    IsAdmin,
+    IsAdminOrReadOnly,
+)
+
 
 
 @api_view(['POST'])
@@ -110,7 +128,7 @@ def registration(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('-id', 'role')
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
     lookup_field = 'username'
@@ -146,7 +164,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = (
+        Title.objects.annotate(rating=Avg('reviews__score')).order_by('-id')
+    )
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = (DjangoFilterBackend, SearchFilter)
@@ -161,7 +181,7 @@ class CrudToCategoryGenreViewSet(CreateModelMixin,
 
 
 class CategoryViewSet(CrudToCategoryGenreViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('-id')
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [SearchFilter]
@@ -176,3 +196,46 @@ class GenreViewSet(CrudToCategoryGenreViewSet):
     filter_backends = [SearchFilter]
     search_fields = ['name',]
     lookup_field = 'slug'
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAdminOrModeratorOrOwnerOrReadOnly]
+
+    def get_queryset(self):
+        title = generics.get_object_or_404(
+            Title, id=self.kwargs.get("title_id")
+        )
+        return title.reviews.all().order_by('pub_date')
+
+    def perform_create(self, serializer):
+        try:
+            title = generics.get_object_or_404(
+                Title, id=self.kwargs.get("title_id")
+            )
+            serializer.save(title=title, author=self.request.user)
+        except IntegrityError:
+            raise ValidationError(
+                {"message": "Вы уже оставили отзыв на это произведение."}
+            )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAdminOrModeratorOrOwnerOrReadOnly]
+
+    def get_queryset(self):
+        review = generics.get_object_or_404(
+            Review,
+            id=self.kwargs.get("review_id"),
+            title__id=self.kwargs.get("title_id"),
+        )
+        return review.comments.all().order_by('pub_date')
+
+    def perform_create(self, serializer):
+        review = generics.get_object_or_404(
+            Review,
+            id=self.kwargs.get("review_id"),
+            title__id=self.kwargs.get("title_id"),
+        )
+        serializer.save(review=review, author=self.request.user)

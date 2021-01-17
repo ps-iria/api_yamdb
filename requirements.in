@@ -4,3 +4,4 @@ django
 django-filter==2.4.0
 djangorestframework
 djangorestframework-simplejwt==4.6.0
+django-import-export

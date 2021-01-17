@@ -26,18 +26,19 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=30,
         unique=True,
-        default=email,
-        blank=True,
+        blank=False,
         verbose_name='Логин',
     )
     first_name = models.CharField(
         max_length=15,
         blank=True,
+        null=True,
         verbose_name='Имя',
     )
     last_name = models.CharField(
         max_length=15,
         blank=True,
+        null=True,
         verbose_name='Фамилия',
     )
     bio = models.TextField(
@@ -46,10 +47,20 @@ class User(AbstractUser):
         verbose_name='О себе',
     )
     confirmation_code = models.CharField(
-        max_length=36,
-        blank=True,
-        null=True
+        max_length=255,
+        unique=True,
+        editable=False,
+        null=True,
+        blank=True
     )
+
+    @property
+    def is_admin(self):
+        return self.role == UserRoles.ADMIN or self.is_superuser
+
+    @property
+    def is_moderator(self):
+        return self.role == UserRoles.MODERATOR
 
 
 class Category(models.Model):
@@ -76,20 +87,20 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL,
         blank=True, null=True, related_name='titles')
+    rating = models.IntegerField(null=True, default=None)
+
+    class Meta:
+        ordering = ['-id']
+
+    def get_genre(self):
+        return(', '.join([genre.name for genre in self.genre.all()]))
 
     def __str__(self):
-        return self.name
-
-
-class Rating(models.Model):
-    value = models.PositiveSmallIntegerField(
-        "Рейтинг",
-        default=5,
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
-    )
-    
-    def __str__(self):
-        return self.value
+        return(f' name: {self.name},'
+               f' year: {self.year},'
+               f' genre: {self.get_genre()},'
+               f' category: {self.category}'
+        )
 
 
 class Review(models.Model):
@@ -104,10 +115,9 @@ class Review(models.Model):
         related_name='reviews',
     )
     text = models.TextField()
-    score = models.ForeignKey(
-        Rating,
-        on_delete=models.PROTECT,
-        related_name='reviews',
+    score = models.IntegerField(
+        'review score',
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     

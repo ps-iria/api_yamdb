@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 from rest_framework.permissions import BasePermission
 from rest_framework import permissions
-=======
 from rest_framework.permissions import (
     BasePermission, 
     IsAuthenticatedOrReadOnly,
@@ -9,8 +7,6 @@ from rest_framework.permissions import (
 )
 
 from .models import UserRoles
->>>>>>> correcting and getting one review on title
-
 
 class IsAdmin(BasePermission):
     """Проверка что пользователь является админом"""
@@ -23,7 +19,6 @@ class IsAdmin(BasePermission):
         return False
 
 
-<<<<<<< HEAD
 class IsAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
@@ -31,7 +26,7 @@ class IsAdminOrReadOnly(BasePermission):
         if request.user.is_authenticated:
             return(request.user.is_staff or request.user.role == 'admin')
 
-=======
+
 class IsAdminOrModeratorOrOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
   
 
@@ -42,4 +37,3 @@ class IsAdminOrModeratorOrOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
             or request.auth and request.user.role == UserRoles.ADMIN
             or request.auth and request.user.role == UserRoles.MODERATOR
         )
->>>>>>> correcting and getting one review on title

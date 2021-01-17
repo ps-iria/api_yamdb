@@ -1,13 +1,13 @@
-<<<<<<< HEAD
 from datetime import datetime
-
 from django.db.models import Avg
 from django.conf import settings
+from django.db import IntegrityError
+from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.core.mail import send_mail
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+
+from rest_framework import viewsets, status, generics
+from rest_framework.serializers import ValidationError
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
@@ -16,13 +16,28 @@ from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from django_filters.rest_framework import DjangoFilterBackend
 
+from .models import Review, Comment, Title, Category, Genre, User
+from .serializers import (
+    ReviewSerializer,
+    CategorySerializer,
+    CommentSerializer,
+    TitleSerializer,
+    GenreSerializer,
+    UserSerializer
+)
+from .permissions import IsAdmin, IsAdminOrModeratorOrOwnerOrReadOnly
 from .filters import TitleFilter
 from .models import Title, Category, Genre, User
 from .permissions import IsAdmin, IsAdminOrReadOnly
 from .serializers import (TitleSerializer, CategorySerializer,
                           GenreSerializer, UserSerializer)
-
+from django.db import IntegrityError
+from rest_framework import viewsets, permissions, generics
+from rest_framework.serializers import ValidationError
+from .models import Review, Comment, Title
+from .permissions import IsAdminOrModeratorOrOwnerOrReadOnly
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -108,14 +123,6 @@ def registration(request):
                 }
         }
     )
-=======
-from django.db import IntegrityError
-from rest_framework import viewsets, permissions, generics
-from rest_framework.serializers import ValidationError
-from .models import Review, Comment, Title
-from .serializers import ReviewSerializer, CommentSerializer
-from .permissions import IsAdminOrModeratorOrOwnerOrReadOnly
->>>>>>> correcting and getting one review on title
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -178,7 +185,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     pass
 
 
-<<<<<<< HEAD
 class CategoryViewSet(CrudToCategoryGenreViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -195,7 +201,8 @@ class GenreViewSet(CrudToCategoryGenreViewSet):
     filter_backends = [SearchFilter]
     search_fields = ['name',]
     lookup_field = 'slug'
-=======
+    http_method_names = ['get', 'create', 'delete']
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
@@ -238,4 +245,3 @@ class CommentViewSet(viewsets.ModelViewSet):
             title__id=self.kwargs.get("title_id"),
         )
         serializer.save(review=review, author=self.request.user)
->>>>>>> correcting and getting one review on title

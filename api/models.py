@@ -87,6 +87,10 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL,
         blank=True, null=True, related_name='titles')
+    rating = models.IntegerField(null=True, default=None)
+
+    class Meta:
+        ordering = ['-id']
 
     def get_genre(self):
         return(', '.join([genre.name for genre in self.genre.all()]))
@@ -97,8 +101,6 @@ class Title(models.Model):
                f' genre: {self.get_genre()},'
                f' category: {self.category}'
         )
-
-
 
 
 class Review(models.Model):
@@ -117,13 +119,10 @@ class Review(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(10)],
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-<<<<<<< HEAD
-=======
     
     class Meta:
         unique_together = ["title", "author"]
         ordering = ["pub_date"]
->>>>>>> correcting and getting one review on title
 
     def __str__(self):
         return self.text

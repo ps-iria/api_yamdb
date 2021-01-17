@@ -1,4 +1,3 @@
-from enum import unique
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -22,6 +21,7 @@ class User(AbstractUser):
         blank=False,
         unique=True,
         verbose_name='Адрес электронной почты',
+        db_index=True,
     )
     username = models.CharField(
         max_length=30,
@@ -87,10 +87,6 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL,
         blank=True, null=True, related_name='titles')
-    rating = models.IntegerField(null=True, default=None)
-
-    class Meta:
-        ordering = ['-id']
 
     def get_genre(self):
         return(', '.join([genre.name for genre in self.genre.all()]))
@@ -116,13 +112,13 @@ class Review(models.Model):
     )
     text = models.TextField()
     score = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        'review score',
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     
     class Meta:
         unique_together = ["title", "author"]
-        ordering = ["pub_date"]
 
     def __str__(self):
         return self.text
@@ -142,8 +138,6 @@ class Comment(models.Model):
     )
     pub_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
-    class Meta:
-        ordering = ["pub_date"]
-
     def __str__(self):
         return self.text
+        

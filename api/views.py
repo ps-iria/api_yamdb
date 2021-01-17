@@ -1,24 +1,29 @@
 from datetime import datetime
+
+from django.db import IntegrityError
 from django.db.models import Avg
 from django.conf import settings
-from django.db import IntegrityError
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, status, generics
-from rest_framework.serializers import ValidationError
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
-from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
-                                   DestroyModelMixin)
+from rest_framework.serializers import ValidationError
+from rest_framework.mixins import (
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+)
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Review, Comment, Title, Category, Genre, User
+from .filters import TitleFilter
+from .models import Review, Title, Category, Genre, User
 from .serializers import (
     ReviewSerializer,
     CategorySerializer,
@@ -27,17 +32,14 @@ from .serializers import (
     GenreSerializer,
     UserSerializer
 )
-from .permissions import IsAdmin, IsAdminOrModeratorOrOwnerOrReadOnly
-from .filters import TitleFilter
-from .models import Title, Category, Genre, User
-from .permissions import IsAdmin, IsAdminOrReadOnly
-from .serializers import (TitleSerializer, CategorySerializer,
-                          GenreSerializer, UserSerializer)
-from django.db import IntegrityError
-from rest_framework import viewsets, permissions, generics
-from rest_framework.serializers import ValidationError
-from .models import Review, Comment, Title
-from .permissions import IsAdminOrModeratorOrOwnerOrReadOnly
+from .permissions import (
+    IsAdmin,
+    IsAdminOrModeratorOrOwnerOrReadOnly,
+    IsAdmin,
+    IsAdminOrReadOnly,
+)
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -126,7 +128,7 @@ def registration(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('-id', 'role')
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
     lookup_field = 'username'
@@ -162,7 +164,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = (
+        Title.objects.annotate(rating=Avg('reviews__score')).order_by('-id')
+    )
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = (DjangoFilterBackend, SearchFilter)
@@ -175,18 +179,9 @@ class CrudToCategoryGenreViewSet(CreateModelMixin,
                                  viewsets.GenericViewSet):
     pass
 
-class CategoriesViewSet(viewsets.ModelViewSet):
-    pass
-
-class GenresViewSet(viewsets.ModelViewSet):
-    pass
-
-class TitleViewSet(viewsets.ModelViewSet):
-    pass
-
 
 class CategoryViewSet(CrudToCategoryGenreViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('-id')
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [SearchFilter]
@@ -201,7 +196,6 @@ class GenreViewSet(CrudToCategoryGenreViewSet):
     filter_backends = [SearchFilter]
     search_fields = ['name',]
     lookup_field = 'slug'
-    http_method_names = ['get', 'create', 'delete']
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -212,7 +206,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title = generics.get_object_or_404(
             Title, id=self.kwargs.get("title_id")
         )
-        return title.reviews.all()
+        return title.reviews.all().order_by('pub_date')
 
     def perform_create(self, serializer):
         try:
@@ -222,7 +216,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
             serializer.save(title=title, author=self.request.user)
         except IntegrityError:
             raise ValidationError(
-                {"detail": "Вы уже оставили отзыв на это произведение."}
+                {"message": "Вы уже оставили отзыв на это произведение."}
             )
 
 
@@ -236,7 +230,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             id=self.kwargs.get("review_id"),
             title__id=self.kwargs.get("title_id"),
         )
-        return review.comments.all()
+        return review.comments.all().order_by('pub_date')
 
     def perform_create(self, serializer):
         review = generics.get_object_or_404(

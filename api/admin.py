@@ -1,5 +1,4 @@
 from django.contrib import admin
-# from import_export.admin import ImportExportModelAdmin
 
 from .models import Genre, Category, Title, User, Review
 
@@ -29,7 +28,7 @@ class TitleAdmin(admin.ModelAdmin):
         'year',
         'description',
         'category',
-        'get_genre'
+        'list_genres'
     )
     empty_value_display = '-пусто-'
 

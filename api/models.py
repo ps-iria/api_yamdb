@@ -65,10 +65,15 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=250,
-                            verbose_name='Категория',
-                            unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
+    name = models.CharField(
+        max_length=250,
+        verbose_name='Категория',
+        unique=True,
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+    )
 
     class Meta:
         verbose_name = 'Категория'
@@ -79,10 +84,15 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=250,
-                            verbose_name='Жанр',
-                            unique=True)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(
+        max_length=250,
+        verbose_name='Жанр',
+        unique=True,
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+    )
 
     class Meta:
         verbose_name = 'Жанр'
@@ -94,14 +104,26 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=250, verbose_name='Произведение')
-    year = models.IntegerField(validators=[year_validator],
-                               null=True, blank=True,
-                               verbose_name='Год издания')
-    description = models.CharField(max_length=700, blank=True)
-    genre = models.ManyToManyField(Genre, related_name='titles')
+    year = models.IntegerField(
+        validators=[year_validator],
+        null=True,
+        blank=True,
+        verbose_name='Год издания'
+    )
+    description = models.CharField(
+        max_length=700,
+        blank=True
+    )
+    genre = models.ManyToManyField(
+        Genre,
+        related_name='titles'
+    )
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL,
-        blank=True, null=True, related_name='titles')
+        Category,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='titles')
 
     class Meta:
         verbose_name = 'Произведение'
@@ -115,7 +137,7 @@ class Title(models.Model):
                 f' year: {self.year},'
                 f' genre: {self.list_genres()},'
                 f' category: {self.category},'
-                )
+        )
 
 
 class Review(models.Model):

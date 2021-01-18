@@ -112,17 +112,20 @@ class Title(models.Model):
     )
     description = models.CharField(
         max_length=700,
-        blank=True
+        blank=True,
+        verbose_name='Описание'
     )
     genre = models.ManyToManyField(
         Genre,
-        related_name='titles'
+        related_name='titles',
+
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        verbose_name='Категория',
         related_name='titles')
 
     class Meta:
@@ -130,7 +133,7 @@ class Title(models.Model):
         verbose_name_plural = 'Произведения'
 
     def list_genres(self):
-        return self.genre.values_list('name',)
+        return self.genre.values_list('name')
 
     def __str__(self):
         return (f' name: {self.name},'
@@ -145,15 +148,17 @@ class Review(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='reviews',
+        verbose_name='Автор',
     )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
+        verbose_name='Произведение, Категория, Жанр',
     )
-    text = models.TextField()
+    text = models.TextField(verbose_name='Отзыв',)
     score = models.IntegerField(
-        'review score',
+        'Оценка',
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)

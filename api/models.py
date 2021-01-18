@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from .validators import year_validator
 
 class UserRoles(models.TextChoices):
     USER = 'user'
@@ -64,38 +65,56 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=250, unique=True)
+    name = models.CharField(max_length=250,
+                            verbose_name='Категория',
+                            unique=True)
     slug = models.SlugField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=250, unique=True)
+    name = models.CharField(max_length=250,
+                            verbose_name='Жанр',
+                            unique=True)
     slug = models.SlugField(max_length=50, unique=True)
+
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
     def __str__(self):
         return self.name
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=250)
-    year = models.IntegerField(null=True, blank=True)
+    name = models.CharField(max_length=250, verbose_name='Произведение')
+    year = models.IntegerField(validators=[year_validator],
+                               null=True, blank=True,
+                               verbose_name='Год издания')
     description = models.CharField(max_length=700, blank=True)
     genre = models.ManyToManyField(Genre, related_name='titles')
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL,
         blank=True, null=True, related_name='titles')
 
-    def get_genre(self):
-        return ', '.join([genre.name for genre in self.genre.all()])
+    class Meta:
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+
+    def list_genres(self):
+        return self.genre.values_list('name',)
 
     def __str__(self):
         return (f' name: {self.name},'
                 f' year: {self.year},'
-                f' genre: {self.get_genre()},'
-                f' category: {self.category}'
+                f' genre: {self.list_genres()},'
+                f' category: {self.category},'
                 )
 
 

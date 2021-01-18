@@ -32,7 +32,8 @@ from .serializers import (
     ReviewSerializer,
     CategorySerializer,
     CommentSerializer,
-    TitleSerializer,
+    TitleMasterSerializer,
+    TitleListSerializer,
     GenreSerializer,
     UserSerializer
 )
@@ -164,10 +165,14 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = (
         Title.objects.annotate(rating=Avg('reviews__score')).order_by('-id')
     )
-    serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = (DjangoFilterBackend, SearchFilter)
     filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return TitleMasterSerializer
+        return TitleListSerializer
 
 
 class CrudToCategoryGenreViewSet(CreateModelMixin,

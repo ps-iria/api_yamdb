@@ -89,14 +89,14 @@ class Title(models.Model):
         blank=True, null=True, related_name='titles')
 
     def get_genre(self):
-        return(', '.join([genre.name for genre in self.genre.all()]))
+        return ', '.join([genre.name for genre in self.genre.all()])
 
     def __str__(self):
-        return(f' name: {self.name},'
-               f' year: {self.year},'
-               f' genre: {self.get_genre()},'
-               f' category: {self.category}'
-        )
+        return (f' name: {self.name},'
+                f' year: {self.year},'
+                f' genre: {self.get_genre()},'
+                f' category: {self.category}'
+                )
 
 
 class Review(models.Model):
@@ -116,7 +116,7 @@ class Review(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-    
+
     class Meta:
         unique_together = ["title", "author"]
 
@@ -140,4 +140,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text
-        

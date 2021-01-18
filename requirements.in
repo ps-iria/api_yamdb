@@ -3,13 +3,5 @@ requests
 django
 django-filter==2.4.0
 djangorestframework
-<<<<<<< HEAD
-<<<<<<< HEAD
-djangorestframework-simplejwt
-=======
 djangorestframework-simplejwt==4.6.0
->>>>>>> d3148fba83205dee0f16d480c5a24559d69f4b0d
 django-import-export
-=======
-djangorestframework-simplejwt==4.6.0
->>>>>>> endpoints, serializers and models

@@ -1,5 +1,5 @@
 from rest_framework.permissions import (
-    BasePermission, 
+    BasePermission,
     IsAuthenticatedOrReadOnly,
     SAFE_METHODS
 )
@@ -23,7 +23,7 @@ class IsAdminOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         if request.user.is_authenticated:
-            return(request.user.is_staff or request.user.role == 'admin')
+            return request.user.is_staff or request.user.role == 'admin'
 
 
 class IsAdminOrModeratorOrOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
@@ -34,4 +34,3 @@ class IsAdminOrModeratorOrOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
             or request.auth and request.user.role == UserRoles.ADMIN
             or request.auth and request.user.role == UserRoles.MODERATOR
         )
-        

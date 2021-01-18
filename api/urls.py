@@ -13,7 +13,6 @@ from .views import (
     get_token,
 )
 
-
 router = DefaultRouter()
 
 router.register('users', UserViewSet, basename='users')

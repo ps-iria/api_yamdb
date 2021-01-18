@@ -60,7 +60,6 @@ class ReviewAdmin(ImportExportModelAdmin):
     empty_value_display = '-пусто-'
 
 
-
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Title, TitleAdmin)

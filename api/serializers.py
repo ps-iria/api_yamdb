@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import User, Category, Title, Review, Comment, Genre
-    
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,7 +42,7 @@ class TitleSerializer(serializers.ModelSerializer):
         many=True
     )
     rating = serializers.IntegerField(read_only=True)
-    
+
     class Meta:
         fields = ('id', 'name', 'year', 'rating', 'description',
                   'genre', 'category')
@@ -59,7 +59,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    
+
     class Meta:
         model = Review
         fields = '__all__'
@@ -89,4 +89,3 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'username': {'required': True},
                         'email': {'required': True}
                         }
-                        

@@ -1,18 +1,16 @@
 from datetime import datetime
 
-from django.db import IntegrityError
-from django.db.models import Avg
 from django.conf import settings
-from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import send_mail
+from django.db import IntegrityError
+from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
-from rest_framework.serializers import ValidationError
 from rest_framework.mixins import (
     CreateModelMixin,
     ListModelMixin,
@@ -20,10 +18,16 @@ from rest_framework.mixins import (
 )
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import TitleFilter
 from .models import Review, Title, Category, Genre, User
+from .permissions import (
+    IsAdminOrModeratorOrOwnerOrReadOnly,
+    IsAdmin,
+    IsAdminOrReadOnly,
+)
 from .serializers import (
     ReviewSerializer,
     CategorySerializer,
@@ -32,13 +36,6 @@ from .serializers import (
     GenreSerializer,
     UserSerializer
 )
-from .permissions import (
-    IsAdmin,
-    IsAdminOrModeratorOrOwnerOrReadOnly,
-    IsAdmin,
-    IsAdminOrReadOnly,
-)
-
 
 
 @api_view(['POST'])
@@ -185,7 +182,7 @@ class CategoryViewSet(CrudToCategoryGenreViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [SearchFilter]
-    search_fields = ['name',]
+    search_fields = ['name', ]
     lookup_field = 'slug'
 
 
@@ -194,7 +191,7 @@ class GenreViewSet(CrudToCategoryGenreViewSet):
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [SearchFilter]
-    search_fields = ['name',]
+    search_fields = ['name', ]
     lookup_field = 'slug'
 
 

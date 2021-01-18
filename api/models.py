@@ -108,13 +108,14 @@ class Title(models.Model):
         verbose_name_plural = 'Произведения'
 
     def list_genres(self):
-        return self.genre.values_list('name')
+        return self.genre.values_list('name',)
 
     def __str__(self):
         return (f' name: {self.name},'
                 f' year: {self.year},'
                 f' genre: {self.list_genres()},'
-                f' category: {self.category}')
+                f' category: {self.category},'
+                )
 
 
 class Review(models.Model):

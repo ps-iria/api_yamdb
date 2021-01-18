@@ -116,7 +116,7 @@ def registration(request):
         'Подтверждение адреса электронной почты yamdb',
         f'Вы получили это письмо, потому что регистрируетесь на ресурсе '
         f'yamdb Код подтверждения confirmation_code = '
-        f'{str(confirmation_code)}',
+        f'{confirmation_code}',
         settings.DEFAULT_FROM_EMAIL,
         [email, ],
         fail_silently=False,

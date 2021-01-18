@@ -1,10 +1,10 @@
 from django.contrib import admin
-from import_export.admin import ImportExportModelAdmin
+# from import_export.admin import ImportExportModelAdmin
 
 from .models import Genre, Category, Title, User, Review
 
 
-class CategoryAdmin(ImportExportModelAdmin):
+class CategoryAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'name',
@@ -13,7 +13,7 @@ class CategoryAdmin(ImportExportModelAdmin):
     empty_value_display = '-пусто-'
 
 
-class GenreAdmin(ImportExportModelAdmin):
+class GenreAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'name',
@@ -22,7 +22,7 @@ class GenreAdmin(ImportExportModelAdmin):
     empty_value_display = '-пусто-'
 
 
-class TitleAdmin(ImportExportModelAdmin):
+class TitleAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'name',
@@ -34,7 +34,7 @@ class TitleAdmin(ImportExportModelAdmin):
     empty_value_display = '-пусто-'
 
 
-class UserAdmin(ImportExportModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     list_display = (
         'username',
         'role',
@@ -48,7 +48,7 @@ class UserAdmin(ImportExportModelAdmin):
     empty_value_display = "-пусто-"
 
 
-class ReviewAdmin(ImportExportModelAdmin):
+class ReviewAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'author',

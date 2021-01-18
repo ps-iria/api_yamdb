@@ -5,7 +5,7 @@ from .models import User, Category, Title, Review, Comment, Genre
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug')
+        exclud = ('id')
         model = Category
         lookup_field = 'slug'
 

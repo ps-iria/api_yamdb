@@ -1,11 +1,10 @@
-from django.utils import timezone
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.db.models import Avg
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, permission_classes, action
@@ -37,7 +36,7 @@ from .serializers import (
     GenreSerializer,
     UserSerializer,
     GetTokenSerializer,
-    RegistrationSerializer
+    RegistrationSerializer,
 )
 
 
@@ -169,7 +168,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.action in ('create', 'update', 'partial_update'):
+        if self.action in (
+                'create',
+                'update',
+                'partial_update'
+        ):
             return TitleMasterSerializer
         return TitleListSerializer
 

@@ -24,8 +24,15 @@ class TitleListSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
-        fields = ('id', 'name', 'year', 'rating',
-                  'description', 'genre', 'category')
+        fields = (
+            'id',
+            'name',
+            'year',
+            'rating',
+            'description',
+            'genre',
+            'category',
+        )
         model = Title
 
 
@@ -39,7 +46,7 @@ class TitleMasterSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Genre.objects.all(),
         required=False,
-        many=True
+        many=True,
     )
 
     class Meta:

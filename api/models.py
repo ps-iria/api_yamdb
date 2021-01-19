@@ -70,9 +70,12 @@ class Category(models.Model):
     name = models.CharField(
         max_length=250,
         verbose_name='Категория',
-        unique=True
+        unique=True,
     )
-    slug = models.SlugField(max_length=100, unique=True)
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+    )
 
     class Meta:
         verbose_name = 'Категория'
@@ -86,9 +89,12 @@ class Genre(models.Model):
     name = models.CharField(
         max_length=250,
         verbose_name='Жанр',
-        unique=True
+        unique=True,
     )
-    slug = models.SlugField(max_length=50, unique=True)
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+    )
 
     class Meta:
         verbose_name = 'Жанр'
@@ -106,22 +112,30 @@ class Title(models.Model):
         blank=True,
         verbose_name='Год издания'
     )
-    description = models.CharField(max_length=700, blank=True)
-    genre = models.ManyToManyField(Genre, related_name='titles')
+    description = models.CharField(
+        max_length=700,
+        blank=True,
+        verbose_name='Описание'
+    )
+    genre = models.ManyToManyField(
+        Genre,
+        related_name='titles',
+
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='titles'
-    )
+        verbose_name='Категория',
+        related_name='titles')
 
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
     def list_genres(self):
-        return self.genre.values_list('name',)
+        return self.genre.values_list('name')
 
     def __str__(self):
         return (f' name: {self.name},'
@@ -136,13 +150,15 @@ class Review(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='reviews',
+        verbose_name='Автор',
     )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
+        verbose_name='Произведение, Категория, Жанр',
     )
-    text = models.TextField()
+    text = models.TextField(verbose_name='Отзыв',)
     score = models.IntegerField(
         'review score',
         validators=[

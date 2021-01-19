@@ -34,7 +34,7 @@ from .serializers import (
     GenreSerializer,
     UserSerializer,
     GetTokenSerializer,
-    RegistrationSerializer
+    RegistrationSerializer,
 )
 
 
@@ -165,7 +165,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.action in ('create', 'update', 'partial_update'):
+        if self.action in (
+                'create',
+                'update',
+                'partial_update'
+        ):
             return TitleMasterSerializer
         return TitleListSerializer
 

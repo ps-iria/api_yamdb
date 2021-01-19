@@ -43,7 +43,7 @@ class UserAdmin(admin.ModelAdmin):
         'first_name',
         'last_name'
     )
-    search_fields = ("last_name",)
+    search_fields = ('last_name',)
     empty_value_display = "-пусто-"
 
 

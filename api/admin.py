@@ -44,7 +44,7 @@ class UserAdmin(admin.ModelAdmin):
         'last_name'
     )
     search_fields = ('last_name',)
-    empty_value_display = "-пусто-"
+    empty_value_display = '-пусто-'
 
 
 class ReviewAdmin(admin.ModelAdmin):

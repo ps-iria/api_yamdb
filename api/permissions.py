@@ -21,7 +21,7 @@ class IsAdminOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         if request.user.is_authenticated:
-            return request.user.is_staff or request.user.role == 'admin'
+            return request.user.is_staff or request.user.is_admin
 
 
 class IsAdminOrModeratorOrOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
@@ -29,6 +29,6 @@ class IsAdminOrModeratorOrOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
         return bool(
             obj.author == request.user
             or request.method in SAFE_METHODS
-            or request.auth and request.user.role == UserRoles.ADMIN
-            or request.auth and request.user.role == UserRoles.MODERATOR
+            or request.auth and request.user.is_admin
+            or request.auth and request.user.is_moderator
         )

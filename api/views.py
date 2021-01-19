@@ -7,6 +7,7 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import (
@@ -44,17 +45,17 @@ def get_token(request):
     """Получение JWT-токена"""
     serializer = GetTokenSerializer(data=request.data)
     if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(serializer.errors)
     user = get_object_or_404(
         User,
-        email=serializer.data['email'],
-        confirmation_code=serializer.data['confirmation_code'])
+        email=serializer.validated_data['email'],
+        confirmation_code=serializer.validated_data['confirmation_code'])
     refresh_tokens = RefreshToken.for_user(user)
     tokens = {
         'refresh': str(refresh_tokens),
         'access': str(refresh_tokens.access_token),
     }
-    return Response({"message": tokens.items()})
+    return Response({'message': tokens.items()})
 
 
 @api_view(['POST'])
@@ -63,9 +64,9 @@ def registration(request):
     """Регистрация пользователя и получение confirmation_code"""
     serializer = RegistrationSerializer(data=request.data)
     if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    email = serializer.data['email']
-    username = serializer.data['username']
+        raise ValidationError(serializer.errors)
+    email = serializer.validated_data['email']
+    username = serializer.validated_data['username']
     if not email:
         return Response(
             {
@@ -137,14 +138,14 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
 
     @action(
-        methods=["get", "patch"],
+        methods=['get', 'patch'],
         detail=False,
         permission_classes=[IsAuthenticated],
         url_path='me'
     )
     def me(self, request):
         serializer = UserSerializer(request.user, many=False)
-        if request.method == "PATCH":
+        if request.method == 'PATCH':
             serializer = UserSerializer(
                 request.user, data=request.data, partial=True
             )
@@ -205,13 +206,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(
-            Title, id=self.kwargs.get("title_id")
+            Title, id=self.kwargs.get('title_id')
         )
         return title.reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(
-                Title, id=self.kwargs.get("title_id")
+                Title, id=self.kwargs.get('title_id')
             )
         serializer.save(title=title, author=self.request.user)
 
@@ -223,15 +224,15 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review = get_object_or_404(
             Review,
-            id=self.kwargs.get("review_id"),
-            title__id=self.kwargs.get("title_id"),
+            id=self.kwargs.get('review_id'),
+            title__id=self.kwargs.get('title_id'),
         )
         return review.comments.all()
 
     def perform_create(self, serializer):
         review = get_object_or_404(
             Review,
-            id=self.kwargs.get("review_id"),
-            title__id=self.kwargs.get("title_id"),
+            id=self.kwargs.get('review_id'),
+            title__id=self.kwargs.get('title_id'),
         )
         serializer.save(review=review, author=self.request.user)

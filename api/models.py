@@ -1,8 +1,10 @@
+from django.db import models
+from django.db.models import UniqueConstraint
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
 
 from .validators import year_validator
+
 
 class UserRoles(models.TextChoices):
     USER = 'user'
@@ -158,13 +160,17 @@ class Review(models.Model):
     )
     text = models.TextField(verbose_name='Отзыв',)
     score = models.IntegerField(
-        'Оценка',
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        'review score',
+        validators=[
+            MinValueValidator(1, message='Рейтинг не может быть меньше 1'),
+            MaxValueValidator(10, message='Рейтинг не может быть больше 10')
+        ]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
-        unique_together = ["title", "author"]
+        UniqueConstraint(fields=["title", "author"], name="unique_review")
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.text
@@ -183,6 +189,9 @@ class Comment(models.Model):
         related_name='comments',
     )
     pub_date = models.DateTimeField('Дата создания', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.text

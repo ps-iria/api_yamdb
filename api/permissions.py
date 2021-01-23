@@ -4,8 +4,6 @@ from rest_framework.permissions import (
     SAFE_METHODS
 )
 
-from .models import UserRoles
-
 
 class IsAdmin(BasePermission):
     """Проверка что пользователь является админом"""
